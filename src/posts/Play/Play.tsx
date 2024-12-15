@@ -1,15 +1,18 @@
-import { Devvit } from '@devvit/public-api';
-import { Tile } from '../../components/tile.js';
+// Play.tsx
+import { Devvit, useState } from '@devvit/public-api';
 import { Board } from '../../components/board.js';
 
 export const Play = () => {
+  const [key, setKey] = useState(0);
+
   return (
     <vstack 
-    alignment="center middle"
-    height="100%"
-    width="100%"
-  >
-    <Board />
-  </vstack>
+      alignment="center middle"
+      height="100%"
+      width="100%"
+    >
+      <Board key={key} />
+      <button onPress={() => setKey(prev => prev + 1)}>Restart Game</button>
+    </vstack>
   );
 };
