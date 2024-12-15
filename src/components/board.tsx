@@ -1,4 +1,4 @@
-import { Devvit, useState, useAsync } from '@devvit/public-api';
+import { Devvit, useState, useAsync, useInterval } from '@devvit/public-api';
 import { Tile } from './tile.js';
 import { categories } from './categories.js';
 
@@ -37,6 +37,29 @@ export const Board = () => {
   const [message, setMessage] = useState('');
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
+  // Timer using useInterval
+  const timerInterval = useInterval(() => {
+    if (gameState.isActive && timer > 0) {
+      setTimer(prevTimer => {
+        const newTimer = Math.max(0, prevTimer - 1);
+        if (newTimer === 0) {
+          setGameState(prev => ({
+            ...prev,
+            isActive: false
+          }));
+          timerInterval.stop();
+        }
+        return newTimer;
+      });
+    }
+  }, 1000);
+
+  // Start timer when game is active
+  if (gameState.isActive) {
+    timerInterval.start();
+  }
+
+  // Game items using useAsync
   const { data: currentItem } = useAsync<GameItem>(async () => {
     const categoryKeys = Object.keys(categories);
     const randomCategory = categoryKeys[Math.floor(Math.random() * categoryKeys.length)];
@@ -49,36 +72,11 @@ export const Board = () => {
     } as GameItem;
   }, { depends: [refreshTrigger] });
 
-  const { data: timerData } = useAsync(async () => {
-    if (!gameState.isActive) return timer;
-
-    const currentTime = Date.now();
-    const deltaTime = (currentTime - gameState.lastUpdate) / 1000;
-
-    if (deltaTime >= 1) {
-      const newTimer = Math.max(0, timer - 1);
-      setTimer(newTimer);
-      setGameState(prev => ({
-        ...prev,
-        lastUpdate: currentTime
-      }));
-
-      if (newTimer === 0) {
-        setGameState(prev => ({
-          ...prev,
-          isActive: false
-        }));
-      }
-    }
-
-    return timer;
-  }, { depends: [gameState.lastUpdate] });
-
-  const handleTileClick = (position: string) => {
+  const handleTileClick = (position: string, setTileColor: (color: string) => void) => {
     if (!gameState.isActive || !currentItem) return;
-
+  
     let isCorrect = false;
-
+  
     switch (currentItem.category) {
       case 'numbers':
         const isOdd = parseInt(currentItem.value) % 2 !== 0;
@@ -93,7 +91,10 @@ export const Board = () => {
                    (!currentItem.isGoodFeeling && position === 'bottomRight');
         break;
     }
-
+  
+    // Set color based on correctness
+    setTileColor(isCorrect ? '#90EE90' : '#FFB6C1'); // Light green for correct, light red for wrong
+  
     if (isCorrect) {
       setScore(prev => prev + 5);
       setMessage('Correct!');
@@ -101,28 +102,22 @@ export const Board = () => {
       setTimer(prev => Math.max(0, prev - 10));
       setMessage('Wrong!');
     }
-
+  
+    // Reset the tile color after a delay
+    setTimeout(() => {
+      setTileColor('transparent');
+    }, 1000);
+  
     setRefreshTrigger(prev => prev + 1);
     setTimeout(() => setMessage(''), 1000);
   };
-
-  const renderInstructions = () => {
-    return (
-      <vstack gap="small" padding="small">
-        <text>Instructions:</text>
-        <text>Numbers: Odd → Top Left, Even → Top Right</text>
-        <text>Words: Living → Middle Left, Non-living → Middle Right</text>
-        <text>Emojis: Happy → Bottom Left, Sad → Bottom Right</text>
-      </vstack>
-    );
-  };
+ 
 
   return (
     <vstack alignment="center middle" gap="medium" padding="large">
-      {renderInstructions()}
       <hstack gap="large">
         <text>Score: {score}</text>
-        <text>Time: {timerData}s</text>
+        <text>Time: {timer}s</text>
       </hstack>
       {message && <text>{message}</text>}
       <hstack alignment="center middle" gap="medium">
