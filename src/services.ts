@@ -17,8 +17,7 @@ export class Service {
     this.scheduler = context.scheduler;
   }
 
-  readonly scoresKeyTag: string = 'default';
-  readonly scoresKey: string = `pixels:${this.scoresKeyTag}`;
+  readonly scoresKey: string = 'game_scores';
 
   async getScores(maxLength: number = 10): Promise<ScoreBoardEntry[]> {
     const options: ZRangeOptions = { reverse: true, by: 'rank' };
