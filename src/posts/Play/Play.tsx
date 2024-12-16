@@ -6,6 +6,7 @@ type PlayProps = {
   username?: string | null; // Add username prop
 };
 export const Play = ({ context, username }: PlayProps): JSX.Element => {
+  console.log("Play component username:", username);
   return (
     <vstack 
       alignment="center middle"

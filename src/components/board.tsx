@@ -41,6 +41,7 @@ async function saveScoreToRedis(context: Devvit.Context, username: string, score
 }
 
 export const Board = ({ context, username }: { context: Devvit.Context, username: string | null }) => {
+  console.log("Board component username:", username);
   const [score, setScore] = useState(0);
   const [timer, setTimer] = useState(30);
   const [gameState, setGameState] = useState<GameState>({

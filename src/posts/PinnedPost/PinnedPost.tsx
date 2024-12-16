@@ -9,24 +9,18 @@ export const PinnedPost = (props: {}, context: Devvit.Context) => {
   useAsync(async () => {
     if (!context.userId) return "";
   
-    const cacheKey = 'cache:userId-username';
-    console.log(cacheKey);
-    const cache = await context.redis.hGet(cacheKey, context.userId);
-    console.log(cache);
-    if (cache) {
-      setUsername(cache);
-    } else {
+    try {
       const user = await context.reddit.getUserById(context.userId);
       if (user) {
-        await context.redis.hSet(cacheKey, { [context.userId]: user.username });
         setUsername(user.username);
-        console.log(user.username);
+        console.log("Username set:", user.username);
+      } else {
+        console.log("No user found");
       }
-      else{
-        console.log("no user");
-      }
+    } catch (error) {
+      console.error("Error fetching user:", error);
     }
-     return ""
+    return "";
   });
 const Menu = (
   <zstack width="100%" height="100%" alignment="center middle">
