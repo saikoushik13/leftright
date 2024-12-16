@@ -27,7 +27,20 @@ type GameState = {
   lastUpdate: number;
 };
 
-export const Board = () => {
+
+
+// Function to save score to Redis sorted set
+async function saveScoreToRedis(context: Devvit.Context, username: string, score: number) {
+  try {
+    // Add the score to a sorted set with the username as the member
+    await context.redis.zAdd('game_scores', { member: username, score });
+    console.log('Score added to Redis successfully!');
+  } catch (error) {
+    console.error('Failed to add score to Redis:', error);
+  }
+}
+
+export const Board = (context: Devvit.Context) => {
   const [score, setScore] = useState(0);
   const [timer, setTimer] = useState(30);
   const [gameState, setGameState] = useState<GameState>({
@@ -70,6 +83,23 @@ export const Board = () => {
     } as GameItem;
   }, { depends: [refreshTrigger] });
 
+  const { data: username } = useAsync(async () => {
+    if (!context.userId) return null;
+
+    const cacheKey = 'cache:userId-username';
+    const cache = await context.redis.hGet(cacheKey, context.userId);
+    if (cache) {
+      return cache;
+    } else {
+      const user = await context.reddit.getUserById(context.userId);
+      if (user) {
+        await context.redis.hSet(cacheKey, { [context.userId]: user.username });
+        return user.username;
+      }
+    }
+    return null;
+  });
+
   const handleTileClick = (position: string, setTileColor: (color: string) => void) => {
     if (!gameState.isActive || !currentItem) return;
 
@@ -104,10 +134,14 @@ export const Board = () => {
       setMessage('Wrong!');
     }
 
-    // Trigger refresh for new item
     setRefreshTrigger((prev) => prev + 1);
     setTimeout(() => setMessage(''), 1000);
   };
+
+  if (!gameState.isActive && username) {
+    // Save the score to Redis when the game ends
+    saveScoreToRedis(context, username, score);
+  }
 
   return (
     <vstack alignment="center middle" gap="medium" padding="large">

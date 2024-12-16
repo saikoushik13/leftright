@@ -4,6 +4,7 @@ import { Router } from './posts/Router.js';
 
 Devvit.configure({
   redditAPI: true,
+  redis: true,
 });
 
 // Add a menu item to the subreddit menu for instantiating the new experience post

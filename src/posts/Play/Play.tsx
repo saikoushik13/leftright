@@ -1,8 +1,10 @@
 // Play.tsx
 import { Devvit, useState } from '@devvit/public-api';
 import { Board } from '../../components/board.js';
-
-export const Play = () => {
+type PlayProps = {
+  context: Devvit.Context;
+}
+export const Play = ({ context }: PlayProps) => {
   const [key, setKey] = useState(0);
 
   return (
@@ -11,7 +13,7 @@ export const Play = () => {
       height="100%"
       width="100%"
     >
-      <Board key={key} />
+      <Board key={key} context={context} />
     </vstack>
   );
 };
