@@ -37,7 +37,6 @@ export const Board = () => {
   const [message, setMessage] = useState('');
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  // Timer using useInterval
   const timerInterval = useInterval(() => {
     if (gameState.isActive && timer > 0) {
       setTimer(prevTimer => {
@@ -54,12 +53,10 @@ export const Board = () => {
     }
   }, 1000);
 
-  // Start timer when game is active
   if (gameState.isActive) {
     timerInterval.start();
   }
 
-  // Game items using useAsync
   const { data: currentItem } = useAsync<GameItem>(async () => {
     const categoryKeys = Object.keys(categories);
     const randomCategory = categoryKeys[Math.floor(Math.random() * categoryKeys.length)];
@@ -92,8 +89,7 @@ export const Board = () => {
         break;
     }
   
-    // Set color based on correctness
-    setTileColor(isCorrect ? '#90EE90' : '#FFB6C1'); // Light green for correct, light red for wrong
+    setTileColor(isCorrect ? '#90EE90' : '#FFB6C1'); // Green for correct, red for wrong
   
     if (isCorrect) {
       setScore(prev => prev + 5);
@@ -103,7 +99,6 @@ export const Board = () => {
       setMessage('Wrong!');
     }
   
-    // Reset the tile color after a delay
     setTimeout(() => {
       setTileColor('transparent');
     }, 1000);
@@ -111,7 +106,6 @@ export const Board = () => {
     setRefreshTrigger(prev => prev + 1);
     setTimeout(() => setMessage(''), 1000);
   };
- 
 
   return (
     <vstack alignment="center middle" gap="medium" padding="large">

@@ -12,7 +12,6 @@ export const Play = () => {
       width="100%"
     >
       <Board key={key} />
-      <button onPress={() => setKey(prev => prev + 1)}>Restart Game</button>
     </vstack>
   );
 };
