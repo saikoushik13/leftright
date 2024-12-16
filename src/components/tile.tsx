@@ -1,38 +1,30 @@
-import { Devvit, useState } from '@devvit/public-api';
+import { useState,Devvit,useInterval } from '@devvit/public-api';
 
-type NumberItem = {
-  category: 'numbers';
+type GameItem = {
+  category: string;
   value: string;
-  isOdd: boolean;
-}
-
-type WordItem = {
-  category: 'words';
-  value: string;
-  isLiving: boolean;
-}
-
-type EmojiItem = {
-  category: 'emojis';
-  value: string;
-  isGoodFeeling: boolean;
-}
-
-type GameItem = NumberItem | WordItem | EmojiItem;
+  isOdd?: boolean;
+  isLiving?: boolean;
+  isGoodFeeling?: boolean;
+};
 
 type TileProps = {
   isMiddle?: boolean;
   position?: string;
-  onTileClick?: (position: string, setColor: (color: string) => void) => void;
+  onTileClick?: (position: string, setTileColor: (color: string) => void) => void;
   currentItem?: GameItem;
 };
-
 export const Tile = ({ isMiddle = false, position = '', onTileClick, currentItem }: TileProps) => {
   const [backgroundColor, setBackgroundColor] = useState('transparent');
-
+  const updateInterval = useInterval(() => {
+    setBackgroundColor('transparent');
+  }, 1000);
   const handleClick = () => {
     if (onTileClick) {
-      onTileClick(position, setBackgroundColor);
+      onTileClick(position, (color: string) => {
+        setBackgroundColor(color);
+        updateInterval.start();
+      });
     }
   };
 
@@ -41,7 +33,7 @@ export const Tile = ({ isMiddle = false, position = '', onTileClick, currentItem
       border={'thin'}
       padding={'medium'}
       cornerRadius={'medium'}
-      width={'80px'}    
+      width={'80px'}
       height={'60px'}
       alignment="center middle"
       backgroundColor={backgroundColor}

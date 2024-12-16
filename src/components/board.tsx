@@ -1,4 +1,4 @@
-import { Devvit, useState, useAsync, useInterval } from '@devvit/public-api';
+import { useState, useAsync, useInterval,Devvit } from '@devvit/public-api';
 import { Tile } from './tile.js';
 import { categories } from './categories.js';
 
@@ -6,45 +6,45 @@ type NumberItem = {
   category: 'numbers';
   value: string;
   isOdd: boolean;
-}
+};
 
 type WordItem = {
   category: 'words';
   value: string;
   isLiving: boolean;
-}
+};
 
 type EmojiItem = {
   category: 'emojis';
   value: string;
   isGoodFeeling: boolean;
-}
+};
 
 type GameItem = NumberItem | WordItem | EmojiItem;
 
 type GameState = {
   isActive: boolean;
   lastUpdate: number;
-}
+};
 
 export const Board = () => {
   const [score, setScore] = useState(0);
   const [timer, setTimer] = useState(30);
   const [gameState, setGameState] = useState<GameState>({
     isActive: true,
-    lastUpdate: Date.now()
+    lastUpdate: Date.now(),
   });
   const [message, setMessage] = useState('');
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const timerInterval = useInterval(() => {
     if (gameState.isActive && timer > 0) {
-      setTimer(prevTimer => {
+      setTimer((prevTimer) => {
         const newTimer = Math.max(0, prevTimer - 1);
         if (newTimer === 0) {
-          setGameState(prev => ({
+          setGameState((prev) => ({
             ...prev,
-            isActive: false
+            isActive: false,
           }));
           timerInterval.stop();
         }
@@ -59,51 +59,53 @@ export const Board = () => {
 
   const { data: currentItem } = useAsync<GameItem>(async () => {
     const categoryKeys = Object.keys(categories);
-    const randomCategory = categoryKeys[Math.floor(Math.random() * categoryKeys.length)];
+    const randomCategory =
+      categoryKeys[Math.floor(Math.random() * categoryKeys.length)];
     const items = categories[randomCategory as keyof typeof categories];
     const randomItem = items[Math.floor(Math.random() * items.length)];
-    
+
     return {
       ...randomItem,
-      category: randomCategory as 'numbers' | 'words' | 'emojis'
+      category: randomCategory as 'numbers' | 'words' | 'emojis',
     } as GameItem;
   }, { depends: [refreshTrigger] });
 
   const handleTileClick = (position: string, setTileColor: (color: string) => void) => {
     if (!gameState.isActive || !currentItem) return;
-  
+
     let isCorrect = false;
-  
+
     switch (currentItem.category) {
       case 'numbers':
         const isOdd = parseInt(currentItem.value) % 2 !== 0;
-        isCorrect = (isOdd && position === 'topLeft') || (!isOdd && position === 'topRight');
+        isCorrect =
+          (isOdd && position === 'topLeft') ||
+          (!isOdd && position === 'topRight');
         break;
       case 'words':
-        isCorrect = (currentItem.isLiving && position === 'middleLeft') || 
-                   (!currentItem.isLiving && position === 'middleRight');
+        isCorrect =
+          (currentItem.isLiving && position === 'middleLeft') ||
+          (!currentItem.isLiving && position === 'middleRight');
         break;
       case 'emojis':
-        isCorrect = (currentItem.isGoodFeeling && position === 'bottomLeft') || 
-                   (!currentItem.isGoodFeeling && position === 'bottomRight');
+        isCorrect =
+          (currentItem.isGoodFeeling && position === 'bottomLeft') ||
+          (!currentItem.isGoodFeeling && position === 'bottomRight');
         break;
     }
-  
+
     setTileColor(isCorrect ? '#90EE90' : '#FFB6C1'); // Green for correct, red for wrong
-  
+
     if (isCorrect) {
-      setScore(prev => prev + 5);
+      setScore((prev) => prev + 5);
       setMessage('Correct!');
     } else {
-      setTimer(prev => Math.max(0, prev - 10));
+      setTimer((prev) => Math.max(0, prev - 10));
       setMessage('Wrong!');
     }
-  
-    setTimeout(() => {
-      setTileColor('transparent');
-    }, 1000);
-  
-    setRefreshTrigger(prev => prev + 1);
+
+    // Trigger refresh for new item
+    setRefreshTrigger((prev) => prev + 1);
     setTimeout(() => setMessage(''), 1000);
   };
 
@@ -120,9 +122,9 @@ export const Board = () => {
           <Tile position="middleLeft" onTileClick={handleTileClick} />
           <Tile position="bottomLeft" onTileClick={handleTileClick} />
         </vstack>
-        
-        <Tile isMiddle={true} currentItem={currentItem||undefined} />
-        
+
+        <Tile isMiddle={true} currentItem={currentItem || undefined} />
+
         <vstack gap="medium">
           <Tile position="topRight" onTileClick={handleTileClick} />
           <Tile position="middleRight" onTileClick={handleTileClick} />
