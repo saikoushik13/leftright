@@ -2,7 +2,7 @@
 import { Devvit, useState } from "@devvit/public-api";
 import { Play } from "../Play/Play.js";
 import { LeaderboardPage } from "../../components/Leaderboard.js";
-;
+
 export const PinnedPost = (props: {}, context: Devvit.Context) => {
   const [page, setPage] = useState('menu');
 const Menu = (
@@ -63,7 +63,7 @@ const onClose = (): void => {
 const pages: Record<string, JSX.Element> = {
   menu: Menu,
   draw: <Play context={context} />,
-  leaderboard: <LeaderboardPage />
+  leaderboard: <LeaderboardPage  username={null} />
 };
 
 return pages[page] || Menu;

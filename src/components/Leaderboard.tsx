@@ -4,7 +4,6 @@ import { Service } from '../services.js';
 
 interface LeaderboardPageProps {
     username: string | null;
-    onClose: () => void;
   }
   export type ScoreBoardEntry = {
     member: string;
@@ -12,9 +11,9 @@ interface LeaderboardPageProps {
     description?: string;
   };
 
-export const LeaderboardPage = (props: LeaderboardPageProps, context: Devvit.Context) => {
+  export const LeaderboardPage = (props: LeaderboardPageProps, context: Devvit.Context): JSX.Element => {
     const service = new Service(context);
-  
+
     const { data, loading } = useAsync<{
       leaderboard: ScoreBoardEntry[];
       user: {
@@ -37,4 +36,38 @@ export const LeaderboardPage = (props: LeaderboardPageProps, context: Devvit.Con
         };
       }
     });
-}
+
+    if (loading) {
+      return <text>Loading...</text>;
+    }
+
+    return (
+      <vstack width="100%" gap="medium">
+        <text size="large">Leaderboard</text>
+      
+        {/* Add null check before mapping */}
+        {data && data.leaderboard && data.leaderboard.length > 0 ? (
+          data.leaderboard.map((entry, index) => (
+            <LeaderboardRow
+            rank={index + 1}
+            name={entry.member}
+            score={entry.score}
+          />
+          ))
+        ) : (
+          <text>No entries found</text>
+        )}
+      
+        {props.username && data && data.user.rank !== -1 && (
+          <vstack>
+            <text>Your Position:</text>
+            <LeaderboardRow
+              rank={data.user.rank + 1}
+              name={props.username}
+              score={data.user.score}
+            />
+          </vstack>
+        )}
+      </vstack>
+    );
+  };
