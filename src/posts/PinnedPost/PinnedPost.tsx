@@ -36,16 +36,16 @@ const Menu = (
     />
     
     {/* Button Container - adjusted to fit the white space */}
-     <vstack 
-      alignment="center middle" 
-      gap="medium"
-      width="33%"  // Center white space width approximation
-      height="100%"
-    >
+    <vstack 
+  alignment="center middle" // Changed from "center middle" to "start middle"
+  gap="medium"
+  width="33%"
+   // Adjusted to fit the white space
+>
       <button 
         onPress={() => setPage('draw')}
         appearance="primary"
-        size="medium"
+        size="small"
         icon="play"
         width="200px"
       >
@@ -55,7 +55,7 @@ const Menu = (
       <button
       onPress={() => setPage('leaderboard')}
         appearance="secondary"
-        size="medium"
+        size="small"
         width="200px"
       >
         Leaderboard
@@ -63,7 +63,7 @@ const Menu = (
       
       <button
         appearance="bordered"
-        size="medium"
+        size="small"
         icon="help"
         width="200px"
       >
