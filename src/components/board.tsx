@@ -27,12 +27,9 @@ type GameState = {
   lastUpdate: number;
 };
 
-// Function to save score to Redis sorted set
 async function saveScoreToRedis(context: Devvit.Context, username: string, score: number) {
- 
-    await context.redis.zAdd('game_scores', { member: name, score:score });
-    console.log('Score added to Redis successfully!');
-  
+  await context.redis.zAdd('game_scores', { member: username, score: score });
+  console.log('Score added to Redis successfully!');
 }
 
 export const Board = ({ context }: { context: Devvit.Context }) => {
@@ -42,14 +39,11 @@ export const Board = ({ context }: { context: Devvit.Context }) => {
     if (!context.userId) return '';
     
     try {
-      // First try to get the name from Redis
       const storedName = await context.redis.get('username');
       if (storedName) return storedName;
   
-      // If not in Redis, fetch from Reddit API
       const user = await context.reddit.getUserById(context.userId);
       if (user) {
-        // Store the username in Redis for future use
         await context.redis.set('username', user.username);
         return user.username;
       }
@@ -65,23 +59,18 @@ export const Board = ({ context }: { context: Devvit.Context }) => {
   });
   const [message, setMessage] = useState('');
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [showGameOver, setShowGameOver] = useState(false);
 
   const timerInterval = useInterval(() => {
     if (gameState.isActive && timer > 0) {
       setTimer((prevTimer) => {
         const newTimer = Math.max(0, prevTimer - 1);
         if (newTimer === 0) {
-          if (name && score > 0) {
-            console.log("Score saved",name,score);
-            saveScoreToRedis(context, name, score);
-          }
-          else{
-            console.log("Score not saved",name,score);
-          }
           setGameState((prev) => ({
             ...prev,
             isActive: false,
           }));
+          setShowGameOver(true);
           timerInterval.stop();
         }
         return newTimer;
@@ -95,8 +84,7 @@ export const Board = ({ context }: { context: Devvit.Context }) => {
 
   const { data: currentItem } = useAsync<GameItem>(async () => {
     const categoryKeys = Object.keys(categories);
-    const randomCategory =
-      categoryKeys[Math.floor(Math.random() * categoryKeys.length)];
+    const randomCategory = categoryKeys[Math.floor(Math.random() * categoryKeys.length)];
     const items = categories[randomCategory as keyof typeof categories];
     const randomItem = items[Math.floor(Math.random() * items.length)];
 
@@ -114,19 +102,15 @@ export const Board = ({ context }: { context: Devvit.Context }) => {
     switch (currentItem.category) {
       case 'numbers':
         const isOdd = parseInt(currentItem.value) % 2 !== 0;
-        isCorrect =
-          (isOdd && position === 'topLeft') ||
-          (!isOdd && position === 'topRight');
+        isCorrect = (isOdd && position === 'topLeft') || (!isOdd && position === 'topRight');
         break;
       case 'words':
-        isCorrect =
-          (currentItem.isLiving && position === 'middleLeft') ||
-          (!currentItem.isLiving && position === 'middleRight');
+        isCorrect = (currentItem.isLiving && position === 'middleLeft') || 
+                   (!currentItem.isLiving && position === 'middleRight');
         break;
       case 'emojis':
-        isCorrect =
-          (currentItem.isGoodFeeling && position === 'bottomLeft') ||
-          (!currentItem.isGoodFeeling && position === 'bottomRight');
+        isCorrect = (currentItem.isGoodFeeling && position === 'bottomLeft') || 
+                   (!currentItem.isGoodFeeling && position === 'bottomRight');
         break;
     }
 
@@ -143,7 +127,30 @@ export const Board = ({ context }: { context: Devvit.Context }) => {
     setRefreshTrigger((prev) => prev + 1);
     setTimeout(() => setMessage(''), 1000);
   };
-  console.log("username:", name);
+
+  const handlePlayAgain = () => {
+    setScore(0);
+    setTimer(30);
+    setGameState({
+      isActive: true,
+      lastUpdate: Date.now(),
+    });
+    setShowGameOver(false);
+    setMessage('');
+    setRefreshTrigger((prev) => prev + 1);
+  };
+
+  if (showGameOver) {
+    return (
+      <vstack alignment="center middle" gap="medium" padding="large">
+        <text size="xxlarge">Game Over!</text>
+        <text size="xlarge">Final Score: {score}</text>
+        <button onPress={handlePlayAgain}>
+          Play Again
+        </button>
+      </vstack>
+    );
+  }
 
   return (
     <vstack alignment="center middle" gap="medium" padding="large">
@@ -167,12 +174,6 @@ export const Board = ({ context }: { context: Devvit.Context }) => {
           <Tile position="bottomRight" onTileClick={handleTileClick} />
         </vstack>
       </hstack>
-      {!gameState.isActive && (
-  <vstack gap="medium" alignment="center middle">
-    <text>Game Over!</text>
-    <text>Final Score: {score}</text>
-  </vstack>
-)}
-      </vstack>
+    </vstack>
   );
 };
