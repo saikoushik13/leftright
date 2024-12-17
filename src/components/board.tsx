@@ -153,27 +153,38 @@ export const Board = ({ context }: { context: Devvit.Context }) => {
   }
 
   return (
-    <vstack alignment="center middle" gap="medium" padding="large">
-      <hstack gap="large">
-        <text>Score: {score}</text>
-        <text>Time: {timer}s</text>
-      </hstack>
-      {message && <text>{message}</text>}
-      <hstack alignment="center middle" gap="medium">
-        <vstack gap="medium">
-          <Tile position="topLeft" onTileClick={handleTileClick} />
-          <Tile position="middleLeft" onTileClick={handleTileClick} />
-          <Tile position="bottomLeft" onTileClick={handleTileClick} />
-        </vstack>
-
-        <Tile isMiddle={true} currentItem={currentItem || undefined} />
-
-        <vstack gap="medium">
-          <Tile position="topRight" onTileClick={handleTileClick} />
-          <Tile position="middleRight" onTileClick={handleTileClick} />
-          <Tile position="bottomRight" onTileClick={handleTileClick} />
-        </vstack>
-      </hstack>
-    </vstack>
+    <zstack width="100%" height="100%" alignment="center middle">
+      <image
+        imageHeight={1080}
+        imageWidth={1920}
+        height="100%"
+        width="100%"
+        url="bg2.png"
+        description="Background image"
+        resizeMode="cover"
+      />
+      <vstack alignment="center middle" gap="medium" padding="large" width="100%">
+        <hstack gap="large">
+          <text>Score: {score}</text>
+          <text>Time: {timer}s</text>
+        </hstack>
+        {message && <text>{message}</text>}
+        <hstack alignment="center middle" gap="medium">
+          <vstack gap="medium">
+            <Tile position="topLeft" onTileClick={handleTileClick} />
+            <Tile position="middleLeft" onTileClick={handleTileClick} />
+            <Tile position="bottomLeft" onTileClick={handleTileClick} />
+          </vstack>
+  
+          <Tile isMiddle={true} currentItem={currentItem || undefined} />
+  
+          <vstack gap="medium">
+            <Tile position="topRight" onTileClick={handleTileClick} />
+            <Tile position="middleRight" onTileClick={handleTileClick} />
+            <Tile position="bottomRight" onTileClick={handleTileClick} />
+          </vstack>
+        </hstack>
+      </vstack>
+    </zstack>
   );
 };
