@@ -1,4 +1,4 @@
-import { useState, useAsync, useInterval,Devvit } from '@devvit/public-api';
+import { useState, useAsync, useInterval, Devvit } from '@devvit/public-api';
 import { Tile } from './tile.js';
 import { categories } from './categories.js';
 
@@ -27,12 +27,9 @@ type GameState = {
   lastUpdate: number;
 };
 
-
-
 // Function to save score to Redis sorted set
 async function saveScoreToRedis(context: Devvit.Context, username: string, score: number) {
   try {
-    // Add the score to a sorted set with the username as the member
     await context.redis.zAdd('game_scores', { member: username, score });
     console.log('Score added to Redis successfully!');
   } catch (error) {
@@ -40,16 +37,34 @@ async function saveScoreToRedis(context: Devvit.Context, username: string, score
   }
 }
 
-export const Board = ({ context, username }: { context: Devvit.Context, username: string | null }) => {
-  console.log("Board component username:", username);
+export const Board = ({ context }: { context: Devvit.Context }) => {
   const [score, setScore] = useState(0);
   const [timer, setTimer] = useState(30);
+  const [username, setUsername] = useState<string | null>(null);
   const [gameState, setGameState] = useState<GameState>({
     isActive: true,
     lastUpdate: Date.now(),
   });
   const [message, setMessage] = useState('');
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  // Fetch username
+  useAsync(async () => {
+    if (!context.userId) return "";
+  
+    try {
+      const user = await context.reddit.getUserById(context.userId);
+      if (user) {
+        setUsername(user.username);
+        console.log("Username board set:", user.username);
+      } else {
+        console.log("No user found");
+      }
+    } catch (error) {
+      console.error("Error fetching user:", error);
+    }
+    return "";
+  });
 
   const timerInterval = useInterval(() => {
     if (gameState.isActive && timer > 0) {
@@ -84,8 +99,6 @@ export const Board = ({ context, username }: { context: Devvit.Context, username
     } as GameItem;
   }, { depends: [refreshTrigger] });
 
- 
-
   const handleTileClick = (position: string, setTileColor: (color: string) => void) => {
     if (!gameState.isActive || !currentItem) return;
 
@@ -110,7 +123,7 @@ export const Board = ({ context, username }: { context: Devvit.Context, username
         break;
     }
 
-    setTileColor(isCorrect ? '#90EE90' : '#FFB6C1'); // Green for correct, red for wrong
+    setTileColor(isCorrect ? '#90EE90' : '#FFB6C1');
 
     if (isCorrect) {
       setScore((prev) => prev + 5);
@@ -124,18 +137,7 @@ export const Board = ({ context, username }: { context: Devvit.Context, username
     setTimeout(() => setMessage(''), 1000);
   };
 
-  useAsync(async () => {
-    if (!gameState.isActive && username) {
-      console.log('Saving score for user:', username);
-      await saveScoreToRedis(context, username, score);
-      return { saved: true }; // Return a JSONValue
-    }
-    else{
-      console.log(username);
-    }
-    return { saved: false }; // Return a JSONValue for when conditions aren't met
-  }, { depends: [gameState.isActive, username, score] });
-
+  // Save score to Redis when game ends
   return (
     <vstack alignment="center middle" gap="medium" padding="large">
       <hstack gap="large">
@@ -163,7 +165,8 @@ export const Board = ({ context, username }: { context: Devvit.Context, username
           <text>Game Over!</text>
           <text>Final Score: {score}</text>
         </vstack>
-      )}
+      )
+    }
     </vstack>
   );
 };

@@ -80,7 +80,7 @@ const onClose = (): void => {
 
 const pages: Record<string, JSX.Element> = {
   menu: Menu,
-  draw: <Play context={context} username={username} />,
+  draw: <Play context={context}  />,
   leaderboard: <LeaderboardPage username={username}/>
 };
 
