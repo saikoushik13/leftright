@@ -38,7 +38,27 @@ async function saveScoreToRedis(context: Devvit.Context, username: string, score
 export const Board = ({ context }: { context: Devvit.Context }) => {
   const [score, setScore] = useState(0);
   const [timer, setTimer] = useState(30);
-  const [name, setName] = useState('');
+  const [name, setName] = useState(async () => {
+    if (!context.userId) return '';
+    
+    try {
+      // First try to get the name from Redis
+      const storedName = await context.redis.get('username');
+      if (storedName) return storedName;
+  
+      // If not in Redis, fetch from Reddit API
+      const user = await context.reddit.getUserById(context.userId);
+      if (user) {
+        // Store the username in Redis for future use
+        await context.redis.set('username', user.username);
+        return user.username;
+      }
+      return '';
+    } catch (error) {
+      console.error("Error fetching/setting username:", error);
+      return '';
+    }
+  });
   const [gameState, setGameState] = useState<GameState>({
     isActive: true,
     lastUpdate: Date.now(),
@@ -46,33 +66,18 @@ export const Board = ({ context }: { context: Devvit.Context }) => {
   const [message, setMessage] = useState('');
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  // Fetch username
-  const { data: fetchedUsername } = useAsync(async () => {
-    if (!context.userId) return null;
-  
-    try {
-      const user = await context.reddit.getUserById(context.userId);
-      if (user) {
-        console.log("Username board set:", user.username);
-        return user.username;  // Return the username instead of using setState
-      } else {
-        console.log("No user found");
-        return null;
-      }
-    } catch (error) {
-      console.error("Error fetching user:", error);
-      return null;
-    }
-  },);
-  if (fetchedUsername && fetchedUsername !== name) {
-    setName(fetchedUsername);
-  }
-
   const timerInterval = useInterval(() => {
     if (gameState.isActive && timer > 0) {
       setTimer((prevTimer) => {
         const newTimer = Math.max(0, prevTimer - 1);
         if (newTimer === 0) {
+          if (name && score > 0) {
+            console.log("Score saved",name,score);
+            saveScoreToRedis(context, name, score);
+          }
+          else{
+            console.log("Score not saved",name,score);
+          }
           setGameState((prev) => ({
             ...prev,
             isActive: false,
@@ -166,13 +171,6 @@ export const Board = ({ context }: { context: Devvit.Context }) => {
   <vstack gap="medium" alignment="center middle">
     <text>Game Over!</text>
     <text>Final Score: {score}</text>
-    {name && (() => {
-      useAsync(async () => {
-        await saveScoreToRedis(context, name, score);
-        return null;
-      });
-      return null; // Return null for rendering
-    })()}
   </vstack>
 )}
       </vstack>
