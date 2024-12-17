@@ -14,7 +14,7 @@ export const GameOver = ({ score, onPlayAgain }: GameOverProps) => {
         imageWidth={1920}
         height="100%"
         width="100%"
-        url="bg2.png"
+        url="bg3.png"
         description="Game Over background"
         resizeMode="cover"
       />

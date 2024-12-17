@@ -2,6 +2,7 @@ import { useState, useAsync, useInterval, Devvit } from '@devvit/public-api';
 import { Tile } from './tile.js';
 import { categories } from './categories.js';
 import { GameOver } from './Gameover.js';
+import { Service } from '../services.js';
 
 type NumberItem = {
   category: 'numbers';
@@ -29,19 +30,27 @@ type GameState = {
 };
 
 async function saveScoreToRedis(context: Devvit.Context, username: string, score: number) {
-  await context.redis.zAdd('game_scores', { member: username, score: score });
+  try {
+    // Get the user's current high score
+    const currentScore = await context.redis.zScore('game_scores', username) ?? null;
+    
+    // Only update if new score is higher
+    if (currentScore === null || score > currentScore) {
+      console.log(`Saving score for ${username}: ${score}`);
+      await context.redis.zAdd('game_scores', { member: username, score: score });
+    }
+  } catch (error) {
+    console.error('Error saving score:', error);
+  }
 }
-
 export const Board = ({ context }: { context: Devvit.Context }) => {
+  const service = new Service(context);
   const [score, setScore] = useState(0);
   const [timer, setTimer] = useState(30);
   const [name, setName] = useState(async () => {
     if (!context.userId) return '';
     
     try {
-      const storedName = await context.redis.get('username');
-      if (storedName) return storedName;
-  
       const user = await context.reddit.getUserById(context.userId);
       if (user) {
         await context.redis.set('username', user.username);
@@ -57,7 +66,7 @@ export const Board = ({ context }: { context: Devvit.Context }) => {
     isActive: true,
     lastUpdate: Date.now(),
   });
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState('choose the left or right');
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [showGameOver, setShowGameOver] = useState(false);
 
@@ -120,13 +129,23 @@ export const Board = ({ context }: { context: Devvit.Context }) => {
       setScore((prev) => prev + 5);
       setMessage('Correct!');
     } else {
-      setTimer((prev) => Math.max(0, prev - 10));
+      setTimer((prev) => {
+        const newTimer = Math.max(0, prev - 10);
+        if (newTimer === 0) {
+          setGameState((prevState) => ({
+            ...prevState,
+            isActive: false
+          }));
+          setShowGameOver(true);
+        }
+        return newTimer;
+      });
       setMessage('Wrong!');
     }
 
     setRefreshTrigger((prev) => prev + 1);
     setTimeout(() => setMessage(''), 1000);
-  };
+};
 
   const handlePlayAgain = () => {
     setScore(0);

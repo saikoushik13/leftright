@@ -45,9 +45,9 @@ const Menu = (
       <button 
         onPress={() => setPage('draw')}
         appearance="primary"
-        size="large"
+        size="medium"
         icon="play"
-        width="100px"
+        width="200px"
       >
         Play
       </button>
@@ -55,17 +55,17 @@ const Menu = (
       <button
       onPress={() => setPage('leaderboard')}
         appearance="secondary"
-        size="large"
-        width="100px"
+        size="medium"
+        width="200px"
       >
         Leaderboard
       </button>
       
       <button
         appearance="bordered"
-        size="large"
+        size="medium"
         icon="help"
-        width="100px"
+        width="200px"
       >
         How to Play
       </button>

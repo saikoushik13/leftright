@@ -9,6 +9,9 @@ export type ScoreBoardEntry = {
 // This service is responsible for fetching scores and user scores
 
 export class Service {
+  static updateHighScore(name: string, score: number) {
+    throw new Error('Method not implemented.');
+  }
   readonly redis: RedisClient;
   readonly scheduler?: Scheduler;
 
@@ -23,6 +26,8 @@ export class Service {
     const options: ZRangeOptions = { reverse: true, by: 'rank' };
     return await this.redis.zRange(this.scoresKey, 0, maxLength - 1, options);
   }
+
+ 
 
   async getUserScore(username: string | null): Promise<{
     rank: number;

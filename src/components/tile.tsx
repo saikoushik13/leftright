@@ -18,7 +18,7 @@ export const Tile = ({ isMiddle = false, position = '', onTileClick, currentItem
   const [backgroundColor, setBackgroundColor] = useState('white');
   const updateInterval = useInterval(() => {
     setBackgroundColor('white');
-  }, 1000);
+  }, 250);
   const handleClick = () => {
     if (onTileClick) {
       onTileClick(position, (color: string) => {
