@@ -30,7 +30,6 @@ type GameState = {
 
 async function saveScoreToRedis(context: Devvit.Context, username: string, score: number) {
   await context.redis.zAdd('game_scores', { member: username, score: score });
-  console.log('Score added to Redis successfully!');
 }
 
 export const Board = ({ context }: { context: Devvit.Context }) => {
@@ -153,15 +152,22 @@ export const Board = ({ context }: { context: Devvit.Context }) => {
         imageWidth={1920}
         height="100%"
         width="100%"
-        url="bg2.png"
+        url="bg3.png"
         description="Background image"
         resizeMode="cover"
       />
       <vstack alignment="center middle" gap="medium" padding="large" width="100%">
-        <hstack gap="large">
-          <text>Score: {score}</text>
-          <text>Time: {timer}s</text>
-        </hstack>
+      <hstack gap="large" padding="large">
+    <vstack alignment="center middle">
+      <text size="xlarge" weight="bold" color="secondary">Score</text>
+      <text size="xxlarge" weight="bold">{score}</text>
+    </vstack>
+    <spacer size="large" />
+    <vstack alignment="center middle">
+      <text size="xlarge" weight="bold" color="secondary">Time</text>
+      <text size="xxlarge" weight="bold">{timer}</text>
+    </vstack>
+  </hstack>
         {message && <text>{message}</text>}
         <hstack alignment="center middle" gap="medium">
           <vstack gap="medium">
