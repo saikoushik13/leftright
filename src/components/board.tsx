@@ -1,6 +1,7 @@
 import { useState, useAsync, useInterval, Devvit } from '@devvit/public-api';
 import { Tile } from './tile.js';
 import { categories } from './categories.js';
+import { GameOver } from './Gameover.js';
 
 type NumberItem = {
   category: 'numbers';
@@ -141,15 +142,8 @@ export const Board = ({ context }: { context: Devvit.Context }) => {
   };
 
   if (showGameOver) {
-    return (
-      <vstack alignment="center middle" gap="medium" padding="large">
-        <text size="xxlarge">Game Over!</text>
-        <text size="xlarge">Final Score: {score}</text>
-        <button onPress={handlePlayAgain}>
-          Play Again
-        </button>
-      </vstack>
-    );
+    saveScoreToRedis(context, name, score);
+    return <GameOver score={score} onPlayAgain={handlePlayAgain} />;
   }
 
   return (

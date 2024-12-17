@@ -15,9 +15,9 @@ type TileProps = {
   currentItem?: GameItem;
 };
 export const Tile = ({ isMiddle = false, position = '', onTileClick, currentItem }: TileProps) => {
-  const [backgroundColor, setBackgroundColor] = useState('transparent');
+  const [backgroundColor, setBackgroundColor] = useState('white');
   const updateInterval = useInterval(() => {
-    setBackgroundColor('transparent');
+    setBackgroundColor('white');
   }, 1000);
   const handleClick = () => {
     if (onTileClick) {
