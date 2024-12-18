@@ -3,6 +3,7 @@ import { Tile } from './tile.js';
 import { categories } from './categories.js';
 import { GameOver } from './Gameover.js';
 import { Service } from '../services.js';
+import { LoadingScreen } from './Loadingscreen.js';
 
 type NumberItem = {
   category: 'numbers';
@@ -47,6 +48,7 @@ export const Board = ({ context, onBackToMenu }: { context: Devvit.Context, onBa
  
   const [score, setScore] = useState(0);
   const [timer, setTimer] = useState(30);
+  const [isLoading, setIsLoading] = useState(true);
   const [name, setName] = useState(async () => {
     if (!context.userId) return '';
     
@@ -69,6 +71,8 @@ export const Board = ({ context, onBackToMenu }: { context: Devvit.Context, onBa
   const [message, setMessage] = useState('choose the left or right');
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [showGameOver, setShowGameOver] = useState(false);
+
+
 
   const timerInterval = useInterval(() => {
     if (gameState.isActive && timer > 0) {
@@ -130,7 +134,7 @@ export const Board = ({ context, onBackToMenu }: { context: Devvit.Context, onBa
       setMessage('Correct!');
     } else {
       setTimer((prev) => {
-        const newTimer = Math.max(0, prev - 10);
+        const newTimer = Math.max(0, prev - 2);
         if (newTimer === 0) {
           setGameState((prevState) => ({
             ...prevState,

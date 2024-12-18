@@ -32,17 +32,18 @@ export const HowToPlay = ({ onBackToMenu }: HowToPlayProps) => {
           <text size="large" weight="bold" color="black">Game Rules:</text>
           
           <vstack gap="small">
-          <vstack gap="small">
-            <text color="black">1. Numbers (Top Row): Left for Odd, Right for Even</text>
-            <text color="black">2. Words (Middle Row): Left for Living, Right for Non-Living</text>
-                <text color="black">3. Emojis (Bottom Row): Left for Good Feelings, Right for Bad Feelings</text>
+          <text color="black"></text>
+          <text color="black">Top row</text>
+  <text color="black">1. Numbers: Click Left (Odd) or Right (Even)</text>
+  <text color="black">Middle row</text>
+  <text color="black">2. Words: Click Left (Living) or Right (Non-Living)</text>
+  <text color="black">Bottom row</text>
+  <text color="black">3. Emojis: Click Left (Good) or Right (Bad) Feelings</text>
 </vstack>
-          </vstack>
-          
           <vstack gap="small">
             <text color="black">• You have 30 seconds to play</text>
             <text color="black">• Each correct answer gives you 5 points</text>
-            <text color="black">• Wrong answers reduce time by 10 seconds</text>
+            <text color="black">• Wrong answers reduce time by 2 seconds</text>
             <text color="black">• Try to get the highest score!</text>
           </vstack>
         </vstack>

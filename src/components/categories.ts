@@ -26,7 +26,7 @@ export const categories = {
       { category: 'emojis' as const, value: '😓', isGoodFeeling: false },
       { category: 'emojis' as const, value: '😱', isGoodFeeling: false },
       { category: 'emojis' as const, value: '💔', isGoodFeeling: false },
-      { category: 'emojis' as const, value: 'ð', isGoodFeeling: false }
+      { category: 'emojis' as const, value: '😰', isGoodFeeling: false }
     ]
   };
   

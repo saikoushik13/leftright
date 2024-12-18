@@ -83,7 +83,7 @@ const onClose = (): void => {
 const pages: Record<string, JSX.Element> = {
   menu: Menu,
   draw: <Play context={context} onBackToMenu={() => setPage('menu')}/>,
-  leaderboard: <LeaderboardPage username={username}/>,
+  leaderboard: <LeaderboardPage username={username} onBackToMenu={() => setPage('menu')}/>,
   howtoplay: <HowToPlay onBackToMenu={() => setPage('menu')} />
 };
 
