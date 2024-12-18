@@ -162,6 +162,7 @@ export const Board = ({ context }: { context: Devvit.Context }) => {
   if (showGameOver) {
     saveScoreToRedis(context, name, score);
     return <GameOver score={score} onPlayAgain={handlePlayAgain} />;
+    onBackToMenu={onBackToMenu}
   }
 
   return (
