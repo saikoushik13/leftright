@@ -43,8 +43,8 @@ async function saveScoreToRedis(context: Devvit.Context, username: string, score
     console.error('Error saving score:', error);
   }
 }
-export const Board = ({ context }: { context: Devvit.Context }) => {
-  const service = new Service(context);
+export const Board = ({ context, onBackToMenu }: { context: Devvit.Context, onBackToMenu: () => void }) => {
+ 
   const [score, setScore] = useState(0);
   const [timer, setTimer] = useState(30);
   const [name, setName] = useState(async () => {
@@ -161,8 +161,7 @@ export const Board = ({ context }: { context: Devvit.Context }) => {
 
   if (showGameOver) {
     saveScoreToRedis(context, name, score);
-    return <GameOver score={score} onPlayAgain={handlePlayAgain} />;
-    onBackToMenu={onBackToMenu}
+    return <GameOver score={score} onPlayAgain={handlePlayAgain} onBackToMenu={onBackToMenu} />;
   }
 
   return (

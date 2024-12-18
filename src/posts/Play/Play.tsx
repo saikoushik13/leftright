@@ -7,14 +7,14 @@ type PlayProps = {
   context: Devvit.Context;
 };
 
-export const Play = ({ context }: PlayProps): JSX.Element => {
+export const Play = ({ context, onBackToMenu }: { context: Devvit.Context, onBackToMenu: () => void }) => {
   return (
     <vstack 
       alignment="center middle"
       height="100%"
       width="100%"
     >
-      <Board context={context} /> // Remove username prop
+      <Board context={context} onBackToMenu={onBackToMenu} /> // Remove username prop
     </vstack>
   );
 };

@@ -2,6 +2,7 @@
 import { Devvit, useAsync, useState } from "@devvit/public-api";
 import { Play } from "../Play/Play.js";
 import { LeaderboardPage } from "../../components/Leaderboard.js";
+import { HowToPlay } from "../../components/Howtoplay.js";
 
 export const PinnedPost = (props: {}, context: Devvit.Context) => {
   const [page, setPage] = useState('menu');
@@ -62,6 +63,7 @@ const Menu = (
       </button>
       
       <button
+      onPress={() => setPage('howtoplay')}
         appearance="bordered"
         size="small"
         icon="help"
@@ -80,8 +82,9 @@ const onClose = (): void => {
 
 const pages: Record<string, JSX.Element> = {
   menu: Menu,
-  draw: <Play context={context}  />,
-  leaderboard: <LeaderboardPage username={username}/>
+  draw: <Play context={context} onBackToMenu={() => setPage('menu')}/>,
+  leaderboard: <LeaderboardPage username={username}/>,
+  howtoplay: <HowToPlay onBackToMenu={() => setPage('menu')} />
 };
 
 return pages[page] || Menu;

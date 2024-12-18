@@ -23,7 +23,7 @@ type GameOverProps = {
         
         <vstack alignment="center middle" gap="large">
           <text size="xxlarge" weight="bold" color="white">Game Over!</text>
-          <text size="xlarge" color="white">Your Score: {score}</text>
+          <text size="xlarge" color="black">Your Score: {score}</text>
           <hstack gap="medium">
             <button
               onPress={onPlayAgain}
